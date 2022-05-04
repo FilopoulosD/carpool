@@ -1,0 +1,25 @@
+{
+  "name": "carpool",
+  "version": "1.0.0",
+  "description": "",
+  "main": "carpool.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "debug": "nodemon --inspect ./carpool.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/FilopoulosD/carpool.git"
+  },
+  "author": "Filopoulos Dimitrios",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/FilopoulosD/carpool/issues"
+  },
+  "homepage": "https://github.com/FilopoulosD/carpool#readme",
+  "dependencies": {
+    "express": "^4.18.1",
+    "express-handlebars": "^6.0.5",
+    "nodemon": "^2.0.16"
+  }
+}
