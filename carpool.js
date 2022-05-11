@@ -1,5 +1,6 @@
 var express = require('express');
 var exphbs  = require('express-handlebars');
+const { header } = require('express/lib/request');
 const { home } = require('nodemon/lib/utils');
 
 var app = express();
@@ -86,6 +87,38 @@ app.get('/upcoming', function(req,res){
     headerTitle:"Upcoming rides"})
 })
 
+//route for ride page
+app.get('/ride', function(req,res){
+    res.render('ride',{layout: 'header',
+    title:'Ride',
+    customstyle:'<link rel="stylesheet" href="/css/ride.css">',
+    headerTitle: 'Ride No',
+    customJs:'<script src="/js/ride.js"></script>'})
+})
+
+//route for end ride page
+app.get('/end', function(req,res){
+    res.render('end',{layout:'header',
+    customstyle:'<link rel="stylesheet" href="/css/end_ride.css">',
+    headerTitle:'End ride',
+    title:'End ride'})
+})
+
+//route for past ride page
+app.get('/pastride', function(req,res){
+    res.render('pastride',{layout:'headerBottomMenu',
+    customstyle:'<link rel="stylesheet" href="/css/single_past_ride.css">',
+    title:"Past Ride No",
+    headerTitle:"Past Ride No"})
+})
+
+//route for review page
+app.get('/review',function(req,res){
+    res.render('review',{layout:'header',
+    customstyle:'<link rel="stylesheet" href="/css/review.css">',
+    title:'Review ride',
+    headerTitle:'Review ride'})
+})
 //route for 404
 app.use(function(req,res){
     res.status(404);
