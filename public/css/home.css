@@ -17,39 +17,6 @@ body{
 .marg0{
     margin: 0px;
 }
-.arrow {
-    border: solid black;
-    border-width: 0 3px 3px 0;
-    display: inline-block;
-    padding: 3px;
-    margin-top: 6px;
-    background-color: #93D8A2;
-}
-.right{
-    transform: rotate(-45deg);
-    -webkit-transform: rotate(-45deg);
-    margin-top: 30px;
-}
-.left {
-    transform: rotate(135deg);
-    -webkit-transform: rotate(135deg);
-    margin-top: 15px;
-    margin-left: 5px;
-}
-
-.down {
-    transform: rotate(45deg);
-    -webkit-transform: rotate(45deg);
-}
-
-/*Settings Button*/
-
-.gear{
-    width: 100px;
-    height: 50px;
-    color:grey;
-    font-size:36px;
-}
 
 /*Bottom Navbar*/
 
