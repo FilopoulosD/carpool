@@ -1,3 +1,4 @@
 node_modules
 simeioseis.txt
 .gitignore
+.env

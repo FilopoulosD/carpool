@@ -2,7 +2,7 @@ var express = require('express');
 var exphbs  = require('express-handlebars');
 const { header } = require('express/lib/request');
 const { home } = require('nodemon/lib/utils');
-
+require('dotenv').config();
 var app = express();
 var hbs = exphbs.create({ /* config */ });
 
@@ -68,15 +68,22 @@ app.get('/search', function(req,res){
     headerTitle: 'Search for a ride'})
 });
 
+//route for found rides page
+app.get('/found', function(req,res){
+    res.render('ridesFound',{ layout:'headerBottomMenu',
+    title:'Rides Found',
+    customstyle:'<link rel="stylesheet" href="/css/upcoming_rides.css">',
+    headerTitle:'Rides Found'})
+})
+
 //route for start a ride page
-app.get('/start', 
-    function(req,res){
-        res.render('start', {
-            layout: 'headerBottomMenu',
-            title:'Start a ride',
-            customstyle:'<link rel="stylesheet" href="/css/start.css">',
-            headerTitle: 'Start a ride'
-        })
+app.get('/start', function(req,res){
+    res.render('start', {
+        layout: 'headerBottomMenu',
+        title:'Start a ride',
+        customstyle:'<link rel="stylesheet" href="/css/start.css">',
+        headerTitle: 'Start a ride'
+    })
 });
 
 //route for upcoming rides page
@@ -93,7 +100,8 @@ app.get('/ride', function(req,res){
     title:'Ride',
     customstyle:'<link rel="stylesheet" href="/css/ride.css">',
     headerTitle: 'Ride No',
-    customJs:'<script src="/js/ride.js"></script>'})
+    customJs:'<script src="/js/ride.js"></script>',
+    API: process.env.API_KEY})
 })
 
 //route for end ride page
@@ -119,6 +127,7 @@ app.get('/review',function(req,res){
     title:'Review ride',
     headerTitle:'Review ride'})
 })
+
 //route for 404
 app.use(function(req,res){
     res.status(404);
