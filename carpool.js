@@ -60,6 +60,13 @@ app.get('/profile', function (req,res){
     headerTitle: 'Profile'})
 });
 
+//route for user's personal messages page
+app.get('/messages', function(req,res){
+    res.render('messages', {layout:'headerBottomMenu',
+    customstyle:'<link rel="stylesheet" href="/css/messages.css">',
+    title:'Messages',
+    headerTitle:'Messages'})
+})
 //route for search ride page
 app.get('/search', function(req,res){
     res.render('search', {layout: 'headerBottomMenu',
