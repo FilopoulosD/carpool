@@ -1,9 +1,10 @@
 var express = require('express');
 var exphbs  = require('express-handlebars');
-const { header } = require('express/lib/request');
-const { home } = require('nodemon/lib/utils');
+
 require('dotenv').config();
+
 var app = express();
+
 var hbs = exphbs.create({ /* config */ });
 
 
@@ -67,6 +68,15 @@ app.get('/messages', function(req,res){
     title:'Messages',
     headerTitle:'Messages'})
 })
+
+//route for chat page
+app.get('/messages/user', function(req,res){
+    res.render('pm', {layout:'headerBottomMenu',
+    customstyle:'<link rel="stylesheet" href="/css/pm.css">',
+    title:'User',
+    headerTitle:'User Name'})
+})
+
 //route for search ride page
 app.get('/search', function(req,res){
     res.render('search', {layout: 'headerBottomMenu',
