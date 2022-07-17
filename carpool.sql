@@ -1,37 +1,36 @@
-USE `gF4kJqQJiJ`;
+USE carpool ;
 
-CREATE TABLE `Users` (
-    `id` INT(10) NOT NULL,
-    `name` VARCHAR(100) NOT NULL,
-    `email` VARCHAR(100) NOT NULL,
-    `phone number` INT(20) NOT NULL,
-    `review score` INT(1),
-    `password` VARCHAR(100) NOT NULL,
-    `birthdate` DATE,
-    `photo` VARCHAR(100),
-    PRIMARY KEY(`id`)
+CREATE TABLE "Users" (
+    id INT NOT NULL,
+    name VARCHAR(100) NOT NULL,
+    email VARCHAR(100) NOT NULL,
+    "phone number" BIGINT NOT NULL,
+    "review score" INT,
+    password VARCHAR(100) NOT NULL,
+    birthdate DATE,
+    photo VARCHAR(100),
+    PRIMARY KEY(id)
 );
 
-CREATE TABLE `Rides` (
-	`id` INT(10) NOT NULL,
-    `car color` VARCHAR(100) NOT NULL,
-    `car model` VARCHAR(100) NOT NULL,
-    `cost` INT(10),
-    `destination` VARCHAR(100) NOT NULL,
-    `driver id` INT (10) NOT NULL,
-    `no of free seats` INT (10) NOT NULL,
-    `no of passengers` INT (10),
-    `pet` BOOLEAN,
-    `smoking` BOOLEAN,
-    `starting point` VARCHAR(100) NOT NULL,
-    `time and date` DATE NOT NULL,
-    PRIMARY KEY(`id`)
+CREATE TABLE Rides (
+	id INT NOT NULL,
+    "car color" VARCHAR(100) NOT NULL,
+    "car model" VARCHAR(100) NOT NULL,
+    cost INT,
+    destination VARCHAR(100) NOT NULL,
+    "driver id" INT NOT NULL,
+    "no of free seats" INT NOT NULL,
+    "no of passengers" INT,
+    pet BIT NOT NULL,
+    smoking BIT,
+    "starting point" VARCHAR(100) NOT NULL,
+    "time and date" DATE NOT NULL,
+    PRIMARY KEY(id)
 );
 
-CREATE TABLE `Go` (
-    `driver id` INT(10) NOT NULL,
-    `passenger id` INT(10) NOT NULL,
-    `ride id` INT(10) NOT NULL,
-    PRIMARY KEY (`ride id`)
+CREATE TABLE "Go" (
+    "driver id" INT NOT NULL,
+    "passenger id" INT NOT NULL,
+    "ride id" INT NOT NULL,
+    PRIMARY KEY ("ride id")
 );
-

@@ -1,13 +1,48 @@
-var express = require('express');
-var exphbs  = require('express-handlebars');
+const express = require('express');
+const exphbs  = require('express-handlebars');
+const { request } = require('http');
+const path = require('path');
+const bcrypt = require("bcrypt");
+const mysql = require('mysql');
+const bodyParser = require('body-parser');
+const crypto = require("crypto");
 
 require('dotenv').config();
 
-var app = express();
+//database credentials import from .env file
+const DB_HOST = process.env.DB_HOST;
+const DB_USER = process.env.DB_USER;
+const DB_PASSWORD = process.env.DB_PASSWORD;
+const DB_DATABASE = process.env.DB_DATABASE;
 
-var hbs = exphbs.create({ /* config */ });
+// Connection ith database
+var conn=mysql.createConnection({
+    host:DB_HOST, 
+    user:DB_USER, 
+    password:DB_PASSWORD, 
+    database:DB_DATABASE, 
+    port: 3306
+  });
+  
+//Connection check
+conn.connect(function(err){
+    if (err){
+      console.log(err.message);
+    } else{
+      console.log("Connected");
+    }
+  })
+
+//app start
+const app = express();
+const hbs = exphbs.create({ /* config */ });
 
 
+
+//Body Parser use from application
+app.use(bodyParser.urlencoded({ extended: false }));
+
+//engine set
 app.engine('handlebars', hbs.engine);
 app.set('view engine', 'handlebars');
 
@@ -42,6 +77,57 @@ app.get('/signup', function(req,res){
     res.render('signup',{layout: 'logo',
     customstyle:'<link rel="stylesheet" href="/css/signup.css">', 
     title: 'Sign up'})
+});
+
+app.post('/signup', async function(req,res){
+    var name = req.body.name;
+    var email = req.body.email;
+    var phone = req.body.phone;
+    var password = req.body.password;
+    var birthdate = req.body.birthdate;
+
+    //random number generator
+    var uuid = crypto.randomInt(100000,1000000);
+    //password hashing
+    var hashedPassword = await bcrypt.hash(password, 10);
+    
+    conn.query(`SELECT COUNT(*) AS cnt FROM Users WHERE email = '${email}';`, function(err,result){
+        if (err) {
+            console.log(err);
+        }else{
+            if (result[0].cnt!==0){
+                res.redirect('/signup');
+                console.log("email already on datatbase");
+            }else{
+                conn.query(`INSERT INTO Users VALUES (${uuid},'${name}', '${email}',${phone},0,'${hashedPassword}','${birthdate}', NULL);`, function(err){
+                    if(err){
+                        console.log(err);
+                    }else{
+                        console.log("Succesfull registration");
+                        res.redirect('/login');
+                    }
+                    
+                });
+            }
+        
+        }   
+    });
+    
+
+
+
+    /*conn.query(`SELECT COUNT(*) AS cnt FROM Users WHERE email = '${email}';`, function(err,result){
+        if (err) throw err;
+        if (result[0].cnt!==0){
+            res.redirect('/signup');
+            console.log("email already on datatbase");
+        }   
+    });
+    conn.query(`INSERT INTO Users VALUES (${uuid},'${name}', '${email}',${phone},0,'${hashedPassword}','${birthdate}', NULL);`, function(err){
+        if(err) throw err;
+        console.log("Succesfull registration");
+        res.redirect('/login')
+    });*/
 });
 
 //route for past rides page
@@ -158,6 +244,7 @@ app.use(function(err,req,res,next){
     res.render('500');
 });
 
+//server listen on port
 app.listen(app.get('port'), function(){
     console.log('Express started on http://localhost:' + app.get('port') + '; press Ctrl+C to terminate.');
 });

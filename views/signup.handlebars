@@ -7,22 +7,21 @@
         </div>
     </div>
     <div class="row text-center">
-        <form>
+        <form action="/signup" method="post" > 
             <div class="form-group ">
                 <p class="form-input Montserrat ">Full Name</p>
-                <input type="name" class="form-control" id="InputName"  placeholder="Enter your full name">
+                <input type="name" class="form-control" id="InputName" name="name" placeholder="Enter your full name">
                 <p class="form-input Montserrat ">Email address</p>
-                <input type="email" class="form-control" id="InputEmail"  placeholder="Enter email">
+                <input type="email" class="form-control" id="InputEmail" name="email" placeholder="Enter email">
                 <p class="form-input Montserrat">Password</p>
-                <input type="password" class="form-control" id="Password" placeholder="Password">
-                <p class="form-input Montserrat">Confirm Password</p>
-                <input type="password" class="form-control" id="Password" placeholder="Password">
+                <input type="password" class="form-control" id="Password" name="password" placeholder="Password">
                 <p class="form-input Montserrat">Mobile Phone</p>
-                <input type="tel" class="form-control" id="Phone" placeholder="Mobile Phone">
+                <input type="phone" class="form-control" id="Phone" name="phone" placeholder="Mobile Phone">
                 <p class="form-input Montserrat">Birthday</p>
-                <input type="date" class="form-control" id="Birthday" >
+                <input type="date" class="form-control" id="Birthday" name="birthdate" name="birthdate">
             </div>
-            <a class="btn btn-secondary signup-button block Montserrat" href="/login" role="button">Sign Up</a>
+            
+            <input type="submit" class="btn btn-secondary signup-button block Montserrat" value="Sign Up">
         </form>
         <div class="col marg0">
             <p class="signup-text Montserrat marg0">Already have an account?</p>
