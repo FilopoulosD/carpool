@@ -7,6 +7,7 @@ A hybrid car pool app i'm creating for my thesis, using Node.js, MySQL, Handleba
 *important files*
 
 .env file with the following format: 
+
 API_KEY = {your Google Maps API key}
 
 DB_HOST = '{database hostname}'
