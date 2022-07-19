@@ -1,11 +1,10 @@
 const express = require('express');
 const exphbs  = require('express-handlebars');
-const { request } = require('http');
-const path = require('path');
 const bcrypt = require("bcrypt");
 const mysql = require('mysql');
 const bodyParser = require('body-parser');
 const crypto = require("crypto");
+
 
 require('dotenv').config();
 
@@ -14,6 +13,7 @@ const DB_HOST = process.env.DB_HOST;
 const DB_USER = process.env.DB_USER;
 const DB_PASSWORD = process.env.DB_PASSWORD;
 const DB_DATABASE = process.env.DB_DATABASE;
+const DB_PORT = process.env.DB_PORT;
 
 // Connection ith database
 var conn=mysql.createConnection({
@@ -21,7 +21,7 @@ var conn=mysql.createConnection({
     user:DB_USER, 
     password:DB_PASSWORD, 
     database:DB_DATABASE, 
-    port: 3306
+    port: DB_PORT
   });
   
 //Connection check
@@ -53,8 +53,9 @@ app.set('port', process.env.PORT || 3000);
 app.use(express.static(__dirname + '/public'));
 
 // route for home page
-app.get('/', function(req,res){
+app.get('/home', function(req,res){
     res.render('home');
+    
 });
 
 //route for create ride page
@@ -72,6 +73,27 @@ app.get('/login', function(req,res){
     title: 'Login'})
 });
 
+app.post('/login', async function(req,res){
+    var email = req.body.email;
+    var password = req.body.password;
+    conn.query( `SELECT email, password FROM Users WHERE email = '${email}';`,async function(err, results){
+        if (err){
+            throw(err)
+        };
+        const matching = await bcrypt.compare(password, results[0].password)
+        if (!matching){
+            console.log('Wrong email or password!');
+            res.redirect('./login');
+        }
+        if (matching){
+            console.log('Login sucessful');
+            
+            res.redirect('/home');
+        }
+        
+    });
+});
+
 //route for sign up page
 app.get('/signup', function(req,res){
     res.render('signup',{layout: 'logo',
@@ -85,12 +107,10 @@ app.post('/signup', async function(req,res){
     var phone = req.body.phone;
     var password = req.body.password;
     var birthdate = req.body.birthdate;
-
     //random number generator
     var uuid = crypto.randomInt(100000,1000000);
     //password hashing
     var hashedPassword = await bcrypt.hash(password, 10);
-    
     conn.query(`SELECT COUNT(*) AS cnt FROM Users WHERE email = '${email}';`, function(err,result){
         if (err) {
             console.log(err);
@@ -112,22 +132,6 @@ app.post('/signup', async function(req,res){
         
         }   
     });
-    
-
-
-
-    /*conn.query(`SELECT COUNT(*) AS cnt FROM Users WHERE email = '${email}';`, function(err,result){
-        if (err) throw err;
-        if (result[0].cnt!==0){
-            res.redirect('/signup');
-            console.log("email already on datatbase");
-        }   
-    });
-    conn.query(`INSERT INTO Users VALUES (${uuid},'${name}', '${email}',${phone},0,'${hashedPassword}','${birthdate}', NULL);`, function(err){
-        if(err) throw err;
-        console.log("Succesfull registration");
-        res.redirect('/login')
-    });*/
 });
 
 //route for past rides page
