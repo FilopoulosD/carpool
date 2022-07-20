@@ -1,43 +1,22 @@
 const express = require('express');
 const exphbs  = require('express-handlebars');
-const bcrypt = require("bcrypt");
-const mysql = require('mysql');
+const bcrypt = require('bcrypt');
 const bodyParser = require('body-parser');
-const crypto = require("crypto");
+const session = require('express-session');
+const db = require('./database').db;
+const crypto = require('crypto');
 
-
-require('dotenv').config();
-
-//database credentials import from .env file
-const DB_HOST = process.env.DB_HOST;
-const DB_USER = process.env.DB_USER;
-const DB_PASSWORD = process.env.DB_PASSWORD;
-const DB_DATABASE = process.env.DB_DATABASE;
-const DB_PORT = process.env.DB_PORT;
-
-// Connection ith database
-var conn=mysql.createConnection({
-    host:DB_HOST, 
-    user:DB_USER, 
-    password:DB_PASSWORD, 
-    database:DB_DATABASE, 
-    port: DB_PORT
-  });
-  
-//Connection check
-conn.connect(function(err){
+db.connect(function(err){
     if (err){
       console.log(err.message);
     } else{
       console.log("Connected");
     }
-  })
+})
 
 //app start
 const app = express();
 const hbs = exphbs.create({ /* config */ });
-
-
 
 //Body Parser use from application
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -52,10 +31,28 @@ app.set('port', process.env.PORT || 3000);
 //static route
 app.use(express.static(__dirname + '/public'));
 
+app.use(session({
+	secret: 'secret',
+	resave: true,
+	saveUninitialized: true
+}));
+
 // route for home page
-app.get('/home', function(req,res){
-    res.render('home');
-    
+app.get('/', function(req,res){
+    if (req.session.loggedin){
+        db.query(`SELECT name FROM Users WHERE email = '${req.session.email}';`, function(err,result){
+            if(err){
+                throw (err);
+            }else{
+                profileName = result[0].name;
+                res.render('home',{layout: 'main',
+                profileName: profileName
+                });
+            }
+        })
+    }else{
+        res.redirect('/login');
+    }
 });
 
 //route for create ride page
@@ -68,15 +65,21 @@ app.get('/create', function(req, res){
 
 //route for login page
 app.get('/login', function(req,res){
-    res.render('login',{layout: 'logo',
-    customstyle:'<link rel="stylesheet" href="/css/login.css">', 
-    title: 'Login'})
+    if (req.session.loggedin){
+        res.redirect('/')
+    }else{
+        res.render('login',{layout: 'logo',
+        customstyle:'<link rel="stylesheet" href="/css/login.css">', 
+        title: 'Login'})
+    }
+    
 });
 
 app.post('/login', async function(req,res){
+    
     var email = req.body.email;
     var password = req.body.password;
-    conn.query( `SELECT email, password FROM Users WHERE email = '${email}';`,async function(err, results){
+    db.query( `SELECT email, password FROM Users WHERE email = '${email}';`,async function(err, results){
         if (err){
             throw(err)
         };
@@ -87,8 +90,9 @@ app.post('/login', async function(req,res){
         }
         if (matching){
             console.log('Login sucessful');
-            
-            res.redirect('/home');
+            req.session.loggedin = true;
+			req.session.email = email;
+            res.redirect('/');
         }
         
     });
@@ -96,9 +100,14 @@ app.post('/login', async function(req,res){
 
 //route for sign up page
 app.get('/signup', function(req,res){
-    res.render('signup',{layout: 'logo',
-    customstyle:'<link rel="stylesheet" href="/css/signup.css">', 
-    title: 'Sign up'})
+    if(req.session.loggedin){
+        res.redirect('/');
+    }else{
+        res.render('signup',{layout: 'logo',
+        customstyle:'<link rel="stylesheet" href="/css/signup.css">', 
+        title: 'Sign up'})
+    }
+    
 });
 
 app.post('/signup', async function(req,res){
@@ -111,7 +120,7 @@ app.post('/signup', async function(req,res){
     var uuid = crypto.randomInt(100000,1000000);
     //password hashing
     var hashedPassword = await bcrypt.hash(password, 10);
-    conn.query(`SELECT COUNT(*) AS cnt FROM Users WHERE email = '${email}';`, function(err,result){
+    db.query(`SELECT COUNT(*) AS cnt FROM Users WHERE email = '${email}';`, function(err,result){
         if (err) {
             console.log(err);
         }else{
@@ -119,17 +128,15 @@ app.post('/signup', async function(req,res){
                 res.redirect('/signup');
                 console.log("email already on datatbase");
             }else{
-                conn.query(`INSERT INTO Users VALUES (${uuid},'${name}', '${email}',${phone},0,'${hashedPassword}','${birthdate}', NULL);`, function(err){
+                db.query(`INSERT INTO Users VALUES (${uuid},'${name}', '${email}',${phone},0,'${hashedPassword}','${birthdate}', NULL);`, function(err){
                     if(err){
                         console.log(err);
                     }else{
                         console.log("Succesfull registration");
                         res.redirect('/login');
-                    }
-                    
+                    }      
                 });
             }
-        
         }   
     });
 });
@@ -144,11 +151,29 @@ app.get('/pastrides', function(req,res){
 
 //route for user's profile
 app.get('/profile', function (req,res){
-    res.render('profile',{layout: 'headerBottomMenu',
-    customstyle: '<link rel="stylesheet" href="/css/profile.css">',
-    title: 'Users Profile',
-    reviewStars: '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">',
-    headerTitle: 'Profile'})
+    db.query(`SELECT name, birthdate, email FROM Users WHERE email = '${req.session.email}';`, function(err,result){
+        if (err){
+            throw (err);
+        }
+        else{
+            fullName = result[0].name;
+            date= result[0].birthdate;
+            month = date.getUTCMonth() +1;
+            day = date.getUTCDate();
+            year = date.getUTCFullYear();
+            birthday = day + '/' + month + '/' + year;
+            email = result[0].email;
+            res.render('profile',{layout: 'headerBottomMenu',
+            customstyle: '<link rel="stylesheet" href="/css/profile.css">',
+            title: 'Users Profile',
+            reviewStars: '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">',
+            headerTitle: 'Profile',
+            name: fullName, 
+            birthday: birthday,
+            email: email
+            });
+        }
+    });
 });
 
 //route for user's personal messages page
