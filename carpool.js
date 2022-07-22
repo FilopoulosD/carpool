@@ -85,8 +85,11 @@ app.post('/login', async function(req,res){
         };
         const matching = await bcrypt.compare(password, results[0].password)
         if (!matching){
-            console.log('Wrong email or password!');
-            res.redirect('./login');
+            res.render('login',{layout: 'logo',
+                customstyle:'<link rel="stylesheet" href="/css/login.css">', 
+                title: 'Login',
+                message: 'Wrong email or password'
+            });
         }
         if (matching){
             console.log('Login sucessful');
@@ -125,15 +128,22 @@ app.post('/signup', async function(req,res){
             console.log(err);
         }else{
             if (result[0].cnt!==0){
-                res.redirect('/signup');
-                console.log("email already on datatbase");
+                res.render('signup',{layout: 'logo',
+                    customstyle:'<link rel="stylesheet" href="/css/signup.css">', 
+                    title: 'Sign up',
+                    message: 'There is already an account with that email!'
+                });
             }else{
                 db.query(`INSERT INTO Users VALUES (${uuid},'${name}', '${email}',${phone},0,'${hashedPassword}','${birthdate}', NULL);`, function(err){
                     if(err){
                         console.log(err);
                     }else{
                         console.log("Succesfull registration");
-                        res.redirect('/login');
+                        res.render('login',{layout: 'logo',
+                            customstyle:'<link rel="stylesheet" href="/css/login.css">', 
+                            title: 'Login',
+                            message: 'Successfull registration!'
+                        });
                     }      
                 });
             }

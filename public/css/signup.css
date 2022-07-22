@@ -20,6 +20,10 @@ body{
     margin-bottom: 20px;
 }
 /*Sign Up Window*/
+.alert{
+    text-align: center;
+    font-size: 16px;
+}
 .signup{
     background-color: white;
     border-radius: 40px;
