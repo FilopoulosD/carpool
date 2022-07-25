@@ -7,26 +7,31 @@
             </div>
         </div>
         <div class="row text-center">
-            <form>
+            <p class="Montserrat"> 
+                {{{message}}}
+            </p>
+            
+            <form  action="/create" method="post">
                 <div class="form-group ">
                     <p class="form-input Montserrat ">Enter destination</p>
-                    <input type="text" class="form-control" id="Destination"  placeholder="Enter your destination">
+                        <input type="text" class="form-control" id="Destination" name="destination"  placeholder="Enter your destination">
                     <p class="form-input Montserrat ">Departure point</p>
-                    <input type="text" class="form-control" id="DeparturePoint"  placeholder="Enter your departure point">
+                        <input type="text" class="form-control" id="DeparturePoint" name="startingPoint" placeholder="Enter your departure point">
                     <p class="form-input Montserrat">Date</p>
-                    <input type="date" class="form-control" id="Date">
+                        <input type="date" name="timeAndDate" class="form-control" id="Date">
                     <p class="form-input Montserrat">Number of free seats</p>
-                    <input type="number" class="form-control" id="NoFreeSeats" placeholder="Enter the number of free seats">
+                        <input type="number" name="freeSeats" class="form-control" id="NoFreeSeats" placeholder="Enter the number of free seats">
                     <p class="form-input Montserrat">Car model</p>
-                    <input type="text" class="form-control" id="Car"placeholder="Enter your car model/year of manufacture">
+                        <input type="text" name="model" class="form-control" id="Car"placeholder="Enter your car model/year of manufacture">
                     <p class="form-input Montserrat">Cost</p>
-                    <input type="number" class="form-control" id="Cost" placeholder="Enter trip's cost">
+                        <input type="number" name="cost" class="form-control" id="Cost" placeholder="Enter trip's cost">
                     <p class="form-input Montserrat">Pets allowed</p>
-                    <input type="checkbox" > 
+                        <input type="checkbox" name="pet" > 
                     <p class="form-input Montserrat">Smoking allowed</p>
-                    <input type="checkbox" >
+                        <input type="checkbox" name="smoking">
                 </div>
-                <a class="btn btn-secondary create-button Montserrat" href="/" role="button">Create Ride</a>
+                <input type="submit" value="Create Ride" class="btn btn-secondary create-button Montserrat" role="button">
+                
             </form>
         </div>
     </div>

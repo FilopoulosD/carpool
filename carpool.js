@@ -5,6 +5,8 @@ const bodyParser = require('body-parser');
 const session = require('express-session');
 const db = require('./database').db;
 const crypto = require('crypto');
+const { start } = require('repl');
+const { time } = require('console');
 
 db.connect(function(err){
     if (err){
@@ -57,11 +59,92 @@ app.get('/', function(req,res){
 
 //route for create ride page
 app.get('/create', function(req, res){
-    res.render('create', {layout: 'headerBottomMenu',
-    customstyle:'<link rel="stylesheet" href="/css/create.css">',
-    title: 'Create a ride',
-    headerTitle:'Create a ride'})
+    if (!req.session.loggedin){
+        res.redirect('/login')
+    }else{
+        res.render('create', {layout: 'headerBottomMenu',
+        customstyle:'<link rel="stylesheet" href="/css/create.css">',
+        title: 'Create a ride',
+        headerTitle:'Create a ride'})
+    }
 });
+
+app.post('/create', function(req,res){
+    var destination = req.body.destination;
+    var startingPoint = req.body.startingPoint;
+    var timeAndDate = req.body.timeAndDate;
+    var freeSeats = req.body.freeSeats;
+    var model = req.body.model;
+    var cost = req.body.cost;
+    var pets = Boolean(req.body.pet);
+    var smoking = Boolean(req.body.smoking);
+    var today = new Date();
+    var date= new Date(timeAndDate);
+    
+    if (!destination){
+        res.render('create', {layout: 'headerBottomMenu',
+        customstyle:'<link rel="stylesheet" href="/css/create.css">',
+        title: 'Create a ride',
+        headerTitle:'Create a ride',
+        message: 'Please enter a destination for your trip!'})
+    }
+    else if(!startingPoint){
+        res.render('create', {layout: 'headerBottomMenu',
+        customstyle:'<link rel="stylesheet" href="/css/create.css">',
+        title: 'Create a ride',
+        headerTitle:'Create a ride',
+        message: 'Please enter a starting point for your trip!'})
+    }else if(!timeAndDate){
+        res.render('create', {layout: 'headerBottomMenu',
+        customstyle:'<link rel="stylesheet" href="/css/create.css">',
+        title: 'Create a ride',
+        headerTitle:'Create a ride',
+        message: 'Please enter a date!'})
+    }else if (today > date){
+        res.render('create', {layout: 'headerBottomMenu',
+        customstyle:'<link rel="stylesheet" href="/css/create.css">',
+        title: 'Create a ride',
+        headerTitle:'Create a ride',
+        message: 'Please enter a valid date!'})
+    }
+    else if(!freeSeats){
+        res.render('create', {layout: 'headerBottomMenu',
+        customstyle:'<link rel="stylesheet" href="/css/create.css">',
+        title: 'Create a ride',
+        headerTitle:'Create a ride',
+        message: 'Please enter the number of the available seats !'})
+    }else if(!model){
+        res.render('create', {layout: 'headerBottomMenu',
+        customstyle:'<link rel="stylesheet" href="/css/create.css">',
+        title: 'Create a ride',
+        headerTitle:'Create a ride',
+        message: 'Please enter the model of your car!'})
+    }else if(!cost){
+        res.render('create', {layout: 'headerBottomMenu',
+        customstyle:'<link rel="stylesheet" href="/css/create.css">',
+        title: 'Create a ride',
+        headerTitle:'Create a ride',
+        message: 'Please enter a valid cost for the trip!'})
+    }else{
+        db.query(`SELECT * FROM Users WHERE email='${req.session.email}';`, function(err,results){
+            if(err){
+                console.log(err)
+            }else{
+                driverId = results[0].id;
+                db.query(`INSERT INTO Rides (carModel , cost , destination , driverId, freeSeats, passengers, pet, smoking, startingPoint, timeAndDate) VALUES
+                ('${model}', ${cost}, '${destination}', ${driverId}, ${freeSeats}, 0, ${pets}, ${smoking}, '${startingPoint}', '${timeAndDate}' ) ;`, function(err){
+                    if(err){
+                        console.log(err);
+                    }else{
+                        console.log("A new ride was created");
+                        res.redirect('/');
+                    }      
+                })
+            }
+        })
+    }
+    
+})
 
 //route for login page
 app.get('/login', function(req,res){
@@ -119,8 +202,7 @@ app.post('/signup', async function(req,res){
     var phone = req.body.phone;
     var password = req.body.password;
     var birthdate = req.body.birthdate;
-    //random number generator
-    var uuid = crypto.randomInt(100000,1000000);
+    
     //password hashing
     var hashedPassword = await bcrypt.hash(password, 10);
     db.query(`SELECT COUNT(*) AS cnt FROM Users WHERE email = '${email}';`, function(err,result){
@@ -134,7 +216,8 @@ app.post('/signup', async function(req,res){
                     message: 'There is already an account with that email!'
                 });
             }else{
-                db.query(`INSERT INTO Users VALUES (${uuid},'${name}', '${email}',${phone},0,'${hashedPassword}','${birthdate}', NULL);`, function(err){
+                db.query(`INSERT INTO Users(name, email,phoneNumber, reviewScore,password,birthdate,photo) VALUES
+                 ('${name}', '${email}',${phone},0,'${hashedPassword}','${birthdate}', NULL);`, function(err){
                     if(err){
                         console.log(err);
                     }else{
